@@ -27,7 +27,7 @@ export const SUN_DATA = {
     { name: 'Helium', percent: 25, color: '#FFD966' },
     { name: 'Other elements', percent: 2, color: '#FF8C00' },
   ],
-  imagePath: '/image_2026-05-06_11-46-05.png',
+  imagePath: 'https://space-cosmic.vercel.app/_next/static/media/image_2026-05-06_11-46-05.0rssh_i7n3ox8.webp',
   imageAlt: 'The Sun — glowing yellow-orange star at the center of our solar system',
   orbitRadiusAu: 0,
   diameterKm: 1392700,
