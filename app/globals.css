@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* COSMOS Color Palette */
+  --void: #04060F;
+  --deep: #0A0F1E;
+  --nebula-shadow: #131B35;
+  --dust: #1E2A4A;
+  --h-alpha: #C0392B;
+  --o-iii: #1ABC9C;
+  --s-ii: #D4A843;
+  --ion-blue: #7B8FD4;
+  --star-white: #EAEEF8;
+  --mist: #8899CC;
+  --orbit: #3D4F7C;
+  
+  /* Font variables */
+  --font-orbitron: var(--font-display);
+  --font-rajdhani: var(--font-body);
+  --font-space-mono: var(--font-mono);
+
+  /* Map to theme tokens */
+  --background: var(--void);
+  --foreground: var(--star-white);
+  --card: var(--deep);
+  --card-foreground: var(--star-white);
+  --popover: var(--deep);
+  --popover-foreground: var(--star-white);
+  --primary: var(--o-iii);
+  --primary-foreground: var(--void);
+  --secondary: var(--dust);
+  --secondary-foreground: var(--star-white);
+  --muted: var(--nebula-shadow);
+  --muted-foreground: var(--mist);
+  --accent: var(--s-ii);
+  --accent-foreground: var(--void);
+  --destructive: var(--h-alpha);
+  --destructive-foreground: var(--star-white);
+  --border: var(--dust);
+  --input: var(--dust);
+  --ring: var(--o-iii);
+  --radius: 0.25rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-rajdhani), 'Rajdhani', sans-serif;
+  --font-mono: var(--font-space-mono), 'Space Mono', monospace;
+  --font-display: var(--font-orbitron), 'Orbitron', sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  /* COSMOS custom colors */
+  --color-void: #04060F;
+  --color-deep: #0A0F1E;
+  --color-nebula-shadow: #131B35;
+  --color-dust: #1E2A4A;
+  --color-h-alpha: #C0392B;
+  --color-o-iii: #1ABC9C;
+  --color-s-ii: #D4A843;
+  --color-ion-blue: #7B8FD4;
+  --color-star-white: #EAEEF8;
+  --color-mist: #8899CC;
+  --color-orbit: #3D4F7C;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background: var(--void);
+    color: var(--star-white);
+    font-family: var(--font-rajdhani), 'Rajdhani', sans-serif;
+    overflow: hidden;
+    min-height: 100vh;
+  }
+
+  /* Invisible scrollbar — site-wide */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  ::selection {
+    background: var(--o-iii);
+    color: var(--void);
+  }
+}
+
+/* Custom animations for COSMOS */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-corona {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.28; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes band-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes bounce-hint {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(5px); }
+}
+
+@keyframes sun-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes sun-corona {
+  0%, 100% { transform: scale(1); opacity: 0.12; }
+  50% { transform: scale(1.06); opacity: 0.20; }
+}
