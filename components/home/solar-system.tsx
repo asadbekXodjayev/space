@@ -69,15 +69,27 @@ export function SolarSystem({ onNavigate }: SolarSystemProps) {
 
   return (
     <div className="fixed inset-0 z-10 overflow-hidden bg-transparent">
-      {/* Sun in the center */}
+      {/* Sun in the center - clickable */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer group"
         style={{
           width: sunSize,
           height: sunSize,
         }}
+        onClick={() => onNavigate('sun')}
+        role="button"
+        tabIndex={0}
+        aria-label="Navigate to Sun"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onNavigate('sun')
+          }
+        }}
       >
-        <Sun />
+        <div className="relative transition-all duration-300 ease-out group-hover:scale-110 group-hover:brightness-110">
+          <Sun />
+        </div>
       </div>
 
       {/* Orbits and planets */}

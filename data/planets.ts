@@ -1,5 +1,41 @@
 import type { Planet } from '@/lib/types'
 
+// Sun data (not a planet, but included for the sun page)
+export const SUN_DATA = {
+  slug: 'sun',
+  name: 'Sun',
+  type: 'Star',
+  tagline: 'The Heart of Our Solar System',
+  overview: `The Sun is the star at the center of our solar system and the primary source of energy for life on Earth. This nearly perfect sphere of hot plasma has a mass that accounts for 99.86% of the total mass of the solar system. The Sun's intense gravitational pull keeps all planets, asteroids, comets, and other objects in orbit around it. Despite appearing yellow from Earth, the Sun is actually a white star (G-type main-sequence star) that emits light across the visible spectrum. Its core reaches temperatures of 15 million degrees Celsius, where nuclear fusion converts hydrogen into helium, releasing enormous amounts of energy.`,
+  facts: [
+    `The Sun's diameter is 1.4 million kilometers — about 109 times Earth's diameter.`,
+    `Light from the Sun takes approximately 8 minutes and 20 seconds to reach Earth.`,
+    `The Sun contains 99.86% of the total mass of the solar system.`,
+    `The Sun will become a red giant in about 5 billion years, eventually engulfing Mercury and Venus.`,
+  ],
+  stats: {
+    diameter: { value: '1,392,700', unit: 'km', label: 'Diameter' },
+    mass: { value: '1.989 × 10³⁰', unit: 'kg', label: 'Mass' },
+    temperature: { value: '5,500', unit: '°C', label: 'Surface Temp' },
+    orbit: { value: 'N/A', unit: 'N/A', label: 'Orbit Period' },
+    moons: { value: '0', label: 'Moons' },
+    gravity: { value: '274', unit: 'm/s²', label: 'Surface Gravity' },
+    distance: { value: '0', unit: 'km', label: 'Distance from Sun' },
+  },
+  composition: [
+    { name: 'Hydrogen', percent: 73, color: '#FDB813' },
+    { name: 'Helium', percent: 25, color: '#FFD966' },
+    { name: 'Other elements', percent: 2, color: '#FF8C00' },
+  ],
+  imagePath: '/image_2026-05-06_11-46-05.png',
+  imageAlt: 'The Sun — glowing yellow-orange star at the center of our solar system',
+  orbitRadiusAu: 0,
+  diameterKm: 1392700,
+  accentColor: '#FDB813',
+  floatDuration: 10,
+  floatDelay: 0,
+} as Planet
+
 export const PLANETS: Planet[] = [
   {
     slug: 'mercury',
@@ -276,7 +312,9 @@ export const PLANETS: Planet[] = [
   },
 ]
 
-export const getPlanet = (slug: string): Planet | undefined =>
-  PLANETS.find((p) => p.slug === slug)
+export const getPlanet = (slug: string): Planet | undefined => {
+  if (slug === 'sun') return SUN_DATA
+  return PLANETS.find((p) => p.slug === slug)
+}
 
-export const PLANET_SLUGS = PLANETS.map((p) => p.slug)
+export const PLANET_SLUGS = ['sun', ...PLANETS.map((p) => p.slug)]
