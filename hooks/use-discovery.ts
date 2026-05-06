@@ -8,7 +8,7 @@ export function useDiscovery() {
   const markVisited = useCosmosStore((state) => state.markVisited)
   const isVisited = useCosmosStore((state) => state.isVisited)
 
-  const totalCount = PLANETS.length
+  const totalCount = PLANETS.length + 1
   const visitedCount = visited.length
   const percentExplored = Math.round((visitedCount / totalCount) * 100)
 
