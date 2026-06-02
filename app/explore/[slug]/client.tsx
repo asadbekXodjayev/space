@@ -2,23 +2,25 @@
 
 import { useEffect } from 'react'
 import { motion } from 'motion/react'
-import type { Planet } from '@/lib/types'
+import type { CelestialObject, CelestialSummary } from '@/lib/types'
 import { useCosmosStore } from '@/store/cosmos.store'
 import { usePlanetScroll } from '@/hooks/use-planet-scroll'
 import { StarField } from '@/components/canvas/star-field'
+import { TopNav } from '@/components/chrome/top-nav'
 import { PlanetHero } from '@/components/planet/planet-hero'
 import { MiniPlanetCard } from '@/components/planet/mini-planet-card'
 import { InfoSection } from '@/components/planet/info-section'
-import { BackButton } from '@/components/ui/back-button'
 import { ProgressLine } from '@/components/ui/progress-line'
 
-interface PlanetDetailClientProps {
-  planet: Planet
+interface ObjectDetailClientProps {
+  object: CelestialObject
+  parent?: CelestialSummary
+  related?: CelestialSummary[]
 }
 
-export function PlanetDetailClient({ planet }: PlanetDetailClientProps) {
-  const markVisited = useCosmosStore((state) => state.markVisited)
-  const setPhase = useCosmosStore((state) => state.setPhase)
+export function ObjectDetailClient({ object, parent, related }: ObjectDetailClientProps) {
+  const markVisited = useCosmosStore((s) => s.markVisited)
+  const setPhase = useCosmosStore((s) => s.setPhase)
 
   const {
     scrollRef,
@@ -31,25 +33,22 @@ export function PlanetDetailClient({ planet }: PlanetDetailClientProps) {
   } = usePlanetScroll()
 
   useEffect(() => {
-    markVisited(planet.slug)
-    setPhase('planet')
-  }, [planet.slug, markVisited, setPhase])
+    markVisited(object.slug)
+    setPhase('detail')
+    return () => setPhase('home')
+  }, [object.slug, markVisited, setPhase])
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative w-full h-screen overflow-hidden"
+      className="relative h-screen w-full overflow-hidden"
     >
       <StarField />
       <ProgressLine width={progressLineWidth} />
-      <BackButton />
-      <MiniPlanetCard
-        planet={planet}
-        visible={showMiniCard}
-        onScrollToTop={scrollToTop}
-      />
+      <TopNav backHref="/" />
+      <MiniPlanetCard object={object} visible={showMiniCard} onScrollToTop={scrollToTop} />
 
       <div
         ref={scrollRef}
@@ -57,12 +56,12 @@ export function PlanetDetailClient({ planet }: PlanetDetailClientProps) {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <PlanetHero
-          planet={planet}
+          object={object}
           heroOpacity={heroOpacity}
           heroScale={heroScale}
           heroTranslateY={heroTranslateY}
         />
-        <InfoSection planet={planet} />
+        <InfoSection object={object} parent={parent} related={related} />
       </div>
     </motion.div>
   )

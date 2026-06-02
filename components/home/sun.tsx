@@ -1,16 +1,22 @@
-import sunImg from '../../data/image_2026-05-06_11-46-05.png'
-import sunImg2 from '../../data/image_2026-05-06_11-46-05.webp'
+import { CelestialOrb } from '@/components/celestial/celestial-orb'
+import { SUN } from '@/data/catalog'
 
+interface SunProps {
+  /** Rendered diameter in px. */
+  size: number
+}
 
-export function Sun() {
+/**
+ * The Sun at the centre of the home system. Renders the real image via
+ * CelestialOrb (SUN declares `glow: true`, so the emissive halo is applied).
+ * Renders nothing if the catalog has no `sun` entry.
+ */
+export function Sun({ size }: SunProps) {
+  if (!SUN) return null
+
   return (
-    <div className="relative flex-shrink-0 flex items-center" style={{ marginLeft: '' }}>
-      <img
-        src={sunImg2.src}
-        alt="Sun"
-        // className="w-150 h-150"
-        style={{ filter: 'drop-shadow(0 0 10px rgba(255, 200, 0, 0.8))' }}
-      />
+    <div className="relative" style={{ width: size, height: size }}>
+      <CelestialOrb object={SUN} size={size} fill priority />
     </div>
   )
 }

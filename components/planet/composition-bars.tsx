@@ -1,13 +1,12 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { Planet } from '@/lib/types'
+import { EASE_OUT_EXPO, inViewOnce } from '@/lib/motion'
+import type { CompositionEntry } from '@/lib/types'
 
-interface CompositionBarsProps {
-  composition: Planet['composition']
-}
+export function CompositionBars({ composition }: { composition: CompositionEntry[] }) {
+  if (composition.length === 0) return null
 
-export function CompositionBars({ composition }: CompositionBarsProps) {
   return (
     <div className="mt-7 flex flex-col gap-3">
       {composition.map((comp, index) => (
@@ -15,24 +14,20 @@ export function CompositionBars({ composition }: CompositionBarsProps) {
           key={comp.name}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
+          viewport={inViewOnce}
+          transition={{ duration: 0.4, delay: index * 0.08 }}
           className="flex flex-col gap-1.5"
         >
-          <div className="flex justify-between items-baseline">
-            <span className="font-body text-[13px] font-medium text-star-white">
-              {comp.name}
-            </span>
-            <span className="font-mono text-[11px] text-mist">
-              {comp.percent}%
-            </span>
+          <div className="flex items-baseline justify-between">
+            <span className="font-body text-[13px] font-medium text-star-white">{comp.name}</span>
+            <span className="font-mono text-[11px] text-mist">{comp.percent}%</span>
           </div>
-          <div className="h-[3px] rounded-sm overflow-hidden" style={{ background: 'var(--dust)' }}>
+          <div className="h-[3px] overflow-hidden rounded-sm" style={{ background: 'var(--dust)' }}>
             <motion.div
               initial={{ width: 0 }}
               whileInView={{ width: `${comp.percent}%` }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: index * 0.1 }}
+              viewport={inViewOnce}
+              transition={{ duration: 1.1, ease: EASE_OUT_EXPO, delay: index * 0.08 }}
               className="h-full rounded-sm"
               style={{ background: comp.color }}
             />

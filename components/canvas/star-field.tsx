@@ -13,28 +13,18 @@ interface Star {
   color: string
 }
 
-function isMobile(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth < 768
-}
+const STAR_COLORS = [COLORS.starWhite, '#FFFFFF', '#D4E5FF', '#FFE4C4', COLORS.mist]
 
 export function StarField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const starsRef = useRef<Star[]>([])
   const rafRef = useRef<number | null>(null)
+  // CSS-pixel dimensions kept in sync with the (dpr-scaled) backing store.
+  const dimsRef = useRef({ w: 0, h: 0 })
 
   const generateStars = useCallback((width: number, height: number) => {
-    const count = isMobile() ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP
+    const count = width < 768 ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP
     const stars: Star[] = []
-
-    const starColors = [
-      COLORS.starWhite,
-      '#FFFFFF',
-      '#D4E5FF',
-      '#FFE4C4',
-      COLORS.mist,
-    ]
-
     for (let i = 0; i < count; i++) {
       stars.push({
         x: Math.random() * width,
@@ -43,50 +33,48 @@ export function StarField() {
         baseOpacity: Math.random() * 0.5 + 0.3,
         twinkleSpeed: Math.random() * 0.02 + 0.005,
         twinklePhase: Math.random() * Math.PI * 2,
-        color: starColors[Math.floor(Math.random() * starColors.length)] ?? COLORS.starWhite,
+        color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)] ?? COLORS.starWhite,
       })
     }
-
     return stars
   }, [])
 
-  const draw = useCallback((ctx: CanvasRenderingContext2D, time: number) => {
-    const { width, height } = ctx.canvas
-
-    // Clear canvas
+  const draw = useCallback((ctx: CanvasRenderingContext2D, time: number, animate: boolean) => {
+    const { w, h } = dimsRef.current
     ctx.fillStyle = COLORS.void
-    ctx.fillRect(0, 0, width, height)
+    ctx.fillRect(0, 0, w, h)
 
-    // Draw stars
     for (const star of starsRef.current) {
-      const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase)
-      const opacity = star.baseOpacity + twinkle * 0.3
-
+      const opacity = animate
+        ? star.baseOpacity + Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.3
+        : star.baseOpacity
       ctx.beginPath()
       ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
       ctx.fillStyle = star.color
       ctx.globalAlpha = Math.max(0.1, Math.min(1, opacity))
       ctx.fill()
     }
-
     ctx.globalAlpha = 1
   }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const dpr = window.devicePixelRatio || 1
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const handleResize = () => {
       const { offsetWidth, offsetHeight } = canvas
+      dimsRef.current = { w: offsetWidth, h: offsetHeight }
+      // Assigning width/height resets the context transform, so re-apply dpr.
       canvas.width = offsetWidth * dpr
       canvas.height = offsetHeight * dpr
-      ctx.scale(dpr, dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       starsRef.current = generateStars(offsetWidth, offsetHeight)
+      if (reduceMotion) draw(ctx, 0, false) // render a single static frame
     }
 
     handleResize()
@@ -94,25 +82,24 @@ export function StarField() {
     const resizeObserver = new ResizeObserver(handleResize)
     resizeObserver.observe(canvas)
 
-    const animate = (time: number) => {
-      draw(ctx, time)
+    if (!reduceMotion) {
+      const animate = (time: number) => {
+        draw(ctx, time, true)
+        rafRef.current = requestAnimationFrame(animate)
+      }
       rafRef.current = requestAnimationFrame(animate)
     }
 
-    rafRef.current = requestAnimationFrame(animate)
-
     return () => {
       resizeObserver.disconnect()
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current)
-      }
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
     }
   }, [generateStars, draw])
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none w-full h-full"
+      className="fixed inset-0 z-0 h-full w-full pointer-events-none"
       aria-hidden="true"
     />
   )

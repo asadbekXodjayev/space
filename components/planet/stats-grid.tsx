@@ -1,41 +1,33 @@
 'use client'
 
 import { motion } from 'motion/react'
-import type { Planet } from '@/lib/types'
+import { staggerContainer, staggerItem } from '@/lib/motion'
+import { inViewOnce } from '@/lib/motion'
+import type { ObjectStat } from '@/lib/types'
 
-interface StatsGridProps {
-  stats: Planet['stats']
-}
-
-export function StatsGrid({ stats }: StatsGridProps) {
-  const entries = Object.entries(stats)
+export function StatsGrid({ stats }: { stats: ObjectStat[] }) {
+  if (stats.length === 0) return null
 
   return (
-    <div
-      className="grid grid-cols-2 gap-px rounded overflow-hidden border border-dust mt-8"
+    <motion.dl
+      variants={staggerContainer}
+      initial="hidden"
+      whileInView="visible"
+      viewport={inViewOnce}
+      className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-dust"
       style={{ background: 'var(--dust)' }}
     >
-      {entries.map(([key, stat], index) => (
-        <motion.div
-          key={key}
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: index * 0.05 }}
-          className="p-5"
-          style={{ background: 'var(--deep)' }}
-        >
-          <div className="font-display text-[clamp(16px,2vw,24px)] font-bold text-star-white tracking-[0.04em]">
+      {stats.map((stat) => (
+        <motion.div key={stat.key} variants={staggerItem} className="bg-deep p-5">
+          <dd className="font-display text-[clamp(16px,2vw,24px)] font-bold tracking-[0.04em] text-star-white">
             {stat.value}
-            {stat.unit && (
-              <span className="text-mist text-[0.7em] ml-1">{stat.unit}</span>
-            )}
-          </div>
-          <div className="font-mono text-[10px] text-orbit tracking-[0.1em] uppercase mt-1">
+            {stat.unit && <span className="ml-1 text-[0.7em] text-mist">{stat.unit}</span>}
+          </dd>
+          <dt className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-orbit">
             {stat.label}
-          </div>
+          </dt>
         </motion.div>
       ))}
-    </div>
+    </motion.dl>
   )
 }

@@ -1,0 +1,66 @@
+{
+  "app": {
+    "title": "COSMOS",
+    "tagline": "An interactive atlas of the cosmos"
+  },
+  "nav": {
+    "back": "Back",
+    "home": "Return to system",
+    "catalog": "Catalog",
+    "explore": "Explore the catalog"
+  },
+  "home": {
+    "explored": "explored",
+    "hint": "Select a body to begin",
+    "enter": "Enter the catalog"
+  },
+  "loading": "Initializing",
+  "notFound": {
+    "code": "404",
+    "title": "Lost in Space",
+    "body": "The celestial body you're looking for has drifted beyond our observable universe. Perhaps it was consumed by a black hole.",
+    "cta": "Return to Solar System"
+  },
+  "detail": {
+    "overview": "Overview",
+    "composition": "Composition",
+    "physicalData": "Physical Data",
+    "facts": "Remarkable Facts",
+    "inDepth": "In Depth",
+    "scrollHint": "Scroll to explore",
+    "backToTop": "Back to top",
+    "orbits": "Orbits",
+    "satelliteOf": "Satellite of",
+    "discovered": "Discovered",
+    "distance": "Distance",
+    "explore": "Explore more",
+    "category": "Classification"
+  },
+  "catalog": {
+    "title": "The Catalog",
+    "subtitle": "Every object in the COSMOS atlas",
+    "search": "Search the cosmos…",
+    "searchAria": "Search the catalog",
+    "all": "All",
+    "empty": "No objects match your search.",
+    "clear": "Clear search",
+    "count_one": "{{count}} object",
+    "count_other": "{{count}} objects"
+  },
+  "category": {
+    "star": "Stars",
+    "planet": "Planets",
+    "dwarf-planet": "Dwarf Planets",
+    "moon": "Moons",
+    "asteroid": "Asteroids",
+    "comet": "Comets",
+    "nebula": "Nebulae",
+    "black-hole": "Black Holes",
+    "pulsar": "Pulsars",
+    "galaxy": "Galaxies"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English"
+  }
+}

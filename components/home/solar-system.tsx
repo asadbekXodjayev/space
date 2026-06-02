@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { PLANETS } from '@/data/planets'
+import { SYSTEM_BODIES } from '@/data/catalog'
 import { PLANET_HOME_SIZES, EARTH_BASE_SIZE_PX } from '@/lib/constants'
-import type { Planet } from '@/lib/types'
+import type { CelestialObject } from '@/lib/types'
 import { Sun } from './sun'
 import { PlanetOrb } from './planet-orb'
 
@@ -11,101 +11,79 @@ interface SolarSystemProps {
   onNavigate: (slug: string) => void
 }
 
-interface OrbitData {
-  radius: number
-  period: number
-  initialAngle: number
+/** Per-planet orbital tuning: relative radius (multiples of a base unit),
+ *  revolution period in seconds, and the starting angle as a fraction of a
+ *  full turn (0–1). Slower outer orbits echo real Keplerian ordering without
+ *  the extreme ratios that would stall the outer planets visually. */
+const ORBITS: Record<string, { radius: number; period: number; angle: number }> = {
+  mercury: { radius: 4.0, period: 24, angle: 0.0 },
+  venus: { radius: 5.0, period: 38, angle: 0.15 },
+  earth: { radius: 6.0, period: 54, angle: 0.3 },
+  mars: { radius: 7.0, period: 78, angle: 0.45 },
+  jupiter: { radius: 8.0, period: 120, angle: 0.6 },
+  saturn: { radius: 8.8, period: 160, angle: 0.75 },
+  uranus: { radius: 9.3, period: 210, angle: 0.85 },
+  neptune: { radius: 9.8, period: 270, angle: 0.95 },
 }
 
 export function SolarSystem({ onNavigate }: SolarSystemProps) {
-  const [isClient, setIsClient] = useState(false)
-  const [viewportWidth, setViewportWidth] = useState(1920)
-  const [viewportHeight, setViewportHeight] = useState(1080)
+  const [mounted, setMounted] = useState(false)
+  // Smallest viewport dimension drives all sizing — set once on mount and on
+  // resize only. Never per frame: the orbit motion is pure CSS.
+  const [minViewport, setMinViewport] = useState(1000)
 
   useEffect(() => {
-    setIsClient(true)
-    setViewportWidth(window.innerWidth)
-    setViewportHeight(window.innerHeight)
-    
-    const handleResize = () => {
-      setViewportWidth(window.innerWidth)
-      setViewportHeight(window.innerHeight)
-    }
-    
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    const measure = () =>
+      setMinViewport(Math.min(window.innerWidth, window.innerHeight))
+    measure()
+    setMounted(true)
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [])
 
-  if (!isClient) {
-    return null
-  }
+  // Render nothing until measured to avoid a hydration mismatch / layout shift.
+  if (!mounted) return null
 
-  // Calculate responsive scale based on viewport - maximize within bounds
-  const minViewport = Math.min(viewportWidth, viewportHeight)
-  const scale = minViewport / 1000 // Base scale on smallest viewport dimension
-  
-  // Sun size - scales with viewport like planets
-  const basePlanetSize = 40
+  // Geometry derived from the viewport.
   const planetScale = minViewport / 1400
-  const sunSize = 200 * planetScale // Sun scales proportionally
-  const sunRadius = sunSize / 2
-  
-  // Orbit data for each planet with realistic relative gaps
-  // Scaled to fit within 100vh and 100vw
-  // Mercury needs significant gap from sun (sun radius + buffer)
-  const maxOrbitRadius = (minViewport / 2) * 0.92 // Leave 8% margin
-  const baseOrbitUnit = maxOrbitRadius / 10
-  
-  const orbitData: Record<string, OrbitData> = {
-    mercury: { radius: 4.0 * baseOrbitUnit, period: 20, initialAngle: 0 },
-    venus: { radius: 5.0 * baseOrbitUnit, period: 35, initialAngle: Math.PI * 0.3 },
-    earth: { radius: 6.0 * baseOrbitUnit, period: 50, initialAngle: Math.PI * 0.6 },
-    mars: { radius: 7.0 * baseOrbitUnit, period: 75, initialAngle: Math.PI * 0.9 },
-    jupiter: { radius: 8.0 * baseOrbitUnit, period: 120, initialAngle: Math.PI * 1.2 },
-    saturn: { radius: 8.8 * baseOrbitUnit, period: 160, initialAngle: Math.PI * 1.5 },
-    uranus: { radius: 9.3 * baseOrbitUnit, period: 220, initialAngle: Math.PI * 1.8 },
-    neptune: { radius: 9.8 * baseOrbitUnit, period: 280, initialAngle: Math.PI * 2.1 },
-  }
+  const sunSize = Math.round(220 * planetScale)
+  const maxOrbitRadius = (minViewport / 2) * 0.92 // 8% safe margin
+  const orbitUnit = maxOrbitRadius / 10
 
   return (
-    <div className="fixed inset-0 z-10 overflow-hidden bg-transparent">
-      {/* Sun in the center - clickable */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer group"
-        style={{
-          width: sunSize,
-          height: sunSize,
-        }}
+    <div className="fixed inset-0 z-10 overflow-hidden">
+      {/* Sun — centre of the system, clickable */}
+      <button
+        type="button"
         onClick={() => onNavigate('sun')}
-        role="button"
-        tabIndex={0}
-        aria-label="Navigate to Sun"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onNavigate('sun')
-          }
-        }}
+        aria-label="The Sun"
+        className="group absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-transparent outline-none cursor-pointer rounded-full transition-[transform,filter] duration-[var(--dur-base)] ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 hover:brightness-110 focus-visible:scale-110 focus-visible:brightness-110 focus-visible:ring-2 focus-visible:ring-o-iii focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+        style={{ width: sunSize, height: sunSize }}
       >
-        <div className="relative transition-all duration-300 ease-out group-hover:scale-110 group-hover:brightness-110">
-          <Sun />
-        </div>
-      </div>
+        <Sun size={sunSize} />
+      </button>
 
-      {/* Orbits and planets */}
-      {PLANETS.map((planet) => {
-        const orbit = orbitData[planet.slug]
+      {/* Orbit rings + planets */}
+      {SYSTEM_BODIES.map((planet) => {
+        const orbit = ORBITS[planet.slug]
+        if (!orbit) return null
+
+        const radiusPx = orbit.radius * orbitUnit
         const sizeMultiplier = PLANET_HOME_SIZES[planet.slug] ?? 1
-        const planetSize = Math.round(sizeMultiplier * basePlanetSize * planetScale)
-        
+        const planetSize = Math.max(
+          18,
+          Math.round(sizeMultiplier * EARTH_BASE_SIZE_PX * planetScale)
+        )
+
         return (
           <Orbit
             key={planet.slug}
             planet={planet}
-            orbit={orbit}
+            radiusPx={radiusPx}
+            period={orbit.period}
+            angle={orbit.angle}
             planetSize={planetSize}
             onNavigate={onNavigate}
-            scale={scale}
           />
         )
       })}
@@ -114,59 +92,73 @@ export function SolarSystem({ onNavigate }: SolarSystemProps) {
 }
 
 interface OrbitProps {
-  planet: Planet
-  orbit: OrbitData
+  planet: CelestialObject
+  radiusPx: number
+  period: number
+  angle: number
   planetSize: number
   onNavigate: (slug: string) => void
-  scale: number
 }
 
-function Orbit({ planet, orbit, planetSize, onNavigate, scale }: OrbitProps) {
-  const [angle, setAngle] = useState(orbit.initialAngle)
-
-  useEffect(() => {
-    let animationFrame: number
-    let startTime: number | null = null
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp
-      const elapsed = (timestamp - startTime) / 1000
-      const newAngle = orbit.initialAngle + (elapsed * 2 * Math.PI) / orbit.period
-      setAngle(newAngle)
-      animationFrame = requestAnimationFrame(animate)
-    }
-
-    animationFrame = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [orbit.initialAngle, orbit.period])
-
-  // Calculate planet position on orbit
-  const x = Math.cos(angle) * orbit.radius
-  const y = Math.sin(angle) * orbit.radius
+/**
+ * One orbit ring + its revolving planet — ZERO JS per frame.
+ *
+ * Nesting (each layer has a single job):
+ *  - ring:        static dashed-subtle circle centred on the Sun.
+ *  - rotor:       0×0 box centred on the Sun, spins 360° over `period`s.
+ *                 A negative animation-delay places the planet at its start angle.
+ *  - offset:      pushed out to the orbit radius via translateX (no rotation).
+ *  - counter:     spins in REVERSE at the same period so the planet stays upright.
+ *  - PlanetOrb:   self-centres (-50%/-50%) on the offset point.
+ */
+function Orbit({
+  planet,
+  radiusPx,
+  period,
+  angle,
+  planetSize,
+  onNavigate,
+}: OrbitProps) {
+  const diameter = radiusPx * 2
+  const startDelay = `${-(angle * period)}s` // negative delay = pre-advanced phase
 
   return (
     <>
-      {/* Orbit path */}
+      {/* Orbit ring */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-700/30 pointer-events-none"
-        style={{
-          width: orbit.radius * 2,
-          height: orbit.radius * 2,
-        }}
+        aria-hidden
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-orbit/20 pointer-events-none"
+        style={{ width: diameter, height: diameter }}
       />
-      
-      {/* Planet */}
+
+      {/* Rotor — spins the planet around the Sun */}
       <div
-        className="absolute top-1/2 left-1/2 z-10"
+        className="absolute left-1/2 top-1/2 h-0 w-0 z-10"
         style={{
-          transform: `translate(${x}px, ${y}px) translate(-50%, -50%)`,
+          animation: `spin-orbit ${period}s linear infinite`,
+          animationDelay: startDelay,
         }}
       >
-        <PlanetOrb
-          planet={planet}
-          size={planetSize}
-          onNavigate={onNavigate}
-        />
+        {/* Radial offset to the orbit radius */}
+        <div
+          className="absolute left-0 top-0"
+          style={{ transform: `translateX(${radiusPx}px)` }}
+        >
+          {/* Counter-rotation keeps the planet visually upright */}
+          <div
+            className="relative"
+            style={{
+              animation: `spin-orbit ${period}s linear infinite reverse`,
+              animationDelay: startDelay,
+            }}
+          >
+            <PlanetOrb
+              planet={planet}
+              size={planetSize}
+              onNavigate={onNavigate}
+            />
+          </div>
+        </div>
       </div>
     </>
   )
