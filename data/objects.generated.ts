@@ -1063,7 +1063,7 @@ export const OBJECTS: CelestialObject[] = [
       }
     ],
     "imageAlt": "The Sun, a brilliant yellow-white G-type star with churning plasma surface and glowing corona",
-    "imagePath": "../public/image_2026-05-06_11-46-05.png",
+    "imagePath": "/image_2026-05-06_11-46-05.png",
     "accentColor": "#FFB200",
     "gradient": [
       "#FFF4C2",
