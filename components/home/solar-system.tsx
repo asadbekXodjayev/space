@@ -46,7 +46,7 @@ export function SolarSystem({ onNavigate }: SolarSystemProps) {
 
   // Geometry derived from the viewport.
   const planetScale = minViewport / 1400
-  const sunSize = Math.round(220 * planetScale)
+  const sunSize = Math.round(320 * planetScale)
   const maxOrbitRadius = (minViewport / 2) * 0.92 // 8% safe margin
   const orbitUnit = maxOrbitRadius / 10
 
